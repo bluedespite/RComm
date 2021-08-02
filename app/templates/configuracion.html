@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Roraima Bussiness Integrated</title>
+    <!-- Bootstrap CSS CDN -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <!-- Our Custom CSS -->
+    <link href="{{ url_for('static', filename = 'style.css') }}" rel="stylesheet">
+    <!-- Font Awesome JS -->
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="wrapper">
+        <!-- Sidebar  -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h4>Roraima </h4>     
+            </div>
+            <ul class="list-unstyled components">
+                <p>Fuel Bussiness Tracker</p>
+                <li class="active">
+                    <a href="#homeSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Home</a>
+                    <ul class="collapse list-unstyled" id="homeSubmenu">
+                        <li>
+                            <a href="#">Home 1</a>
+                        </li>
+                        <li>
+                            <a href="#">Home 2</a>
+                        </li>
+                        <li>
+                            <a href="#">Home 3</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#">About</a>
+                </li>
+                <li>
+                    <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Pages</a>
+                    <ul class="collapse list-unstyled" id="pageSubmenu">
+                        <li>
+                            <a href="#">Page 1</a>
+                        </li>
+                        <li>
+                            <a href="#">Page 2</a>
+                        </li>
+                        <li>
+                            <a href="#">Page 3</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#">Portfolio</a>
+                </li>
+                <li>
+                    <a href="#">Contact</a>
+                </li>
+            </ul>
+
+            <ul class="list-unstyled CTAs">
+                <li>
+                    <a href="{{ url_for('usuarios') }}" class="download">Usuarios</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('configuracion') }}" class="download">Configuracion</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('dashboard') }}" class="download">Inicio</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('nodos') }}" class="download">Nodos</a>
+                </li>
+                <li>
+                    <a href="{{ url_for('logout') }}" class="article">Logout</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content  -->
+        <div id="content">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-info">
+                        <i class="fas fa-align-left"></i>
+                        <span> </span>
+                    </button>
+                    <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <i class="fas fa-align-justify"></i>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="nav navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <button type="button" class="btn btn-primary" onclick="save_conf()">Save Conf</button> 
+                            </li>
+                            <li class="nav-item">
+                                <button type="button" class="btn btn-primary" onclick="search_conf()">Search by TAG</button> 
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            
+            <h4>Administrador de Configuracion Canales</h4>
+            <div class= "col-8">
+                <p>ID de la Estacion:</p>
+                <input type="text" class="form-control mb-2" placeholder="ID Estacion" id="ID_ESTACION" required ></input>
+                <p>Nombre de la Estacion:</p>
+                <input type="text" class="form-control mb-2" placeholder="Nombre de la Estacion" id="ESTACION" required ></input>
+                <p>ID de Tanque:</p>
+                <input type="text" class="form-control mb-2" placeholder="ID Tanque" id="ID_TANQUE" required ></input>
+                <p>Nombre del Tanque:</p>
+                <input type="text" class="form-control mb-2" placeholder="Nombre Tanque" id="TANQUE" required ></input>
+                <p>Nombre del Producto:</p>
+                <input type="text" class="form-control mb-2" placeholder="Nombre Producto" id="PRODUCTO" required ></input>
+                <p>Densidad del Producto:</p>
+                <input type="text" class="form-control mb-2" placeholder="Densidad Producto" id="DENSIDAD" required ></input>
+                <p>Tag del Sensor:</p>
+                <input type="text" class="form-control mb-2" placeholder="Tag del Sensor" id="TAG_SENSOR" required ></input>
+                <p>Descripcion:</p>
+                <input type="text" class="form-control mb-2" placeholder="DESCRIPCION" id="DESCRIPCION" required ></input>
+                <p>Unidad de Medida:</p>
+                <input type="text" class="form-control mb-2" placeholder="Unidad de Medida" id="UM" required ></input>
+                <p>Rango Minimo:</p>
+                <input type="text" class="form-control mb-2" placeholder="Rango Minimo" id="RANGO_MIN" required ></input>
+                <p>Rango Maximo:</p>
+                <input type="text" class="form-control mb-2" placeholder="Rango Maximo" id="RANGO_MAX" required ></input>
+                <p>Tipo:</p>
+                <select class="custom-select mb-2" name="Tipo" id="TIPO"  >
+                    <option selected>Choose...</option>
+                    <option value="ANALOGICO">ANALOGICO (4-20mA/1-5Vdc)</option>
+                    <option value="MODBUS_TCP">MODBUS TCP</option>
+                    <option value="MODBUS_SERIAL">MODBUS SERIAL (RS232/RS485)</option>
+                </select>
+                <p>Direccion:</p>
+                <input type="text" class="form-control mb-2" placeholder="Direccion" id="DIRECCION" required ></input>
+                <p>Mascara:</p>
+                <input type="text" class="form-control mb-2" placeholder="Mascara" id="MASCARA" required ></input>
+                <p>Puerto de Comunicaciones (TCP):</p>
+                <input type="text" class="form-control mb-2" placeholder="Puerto de Comunicacion TCP" id="PUERTO" required ></input>
+                <p>ID de Comunicaciones:</p>
+                <input type="text" class="form-control mb-2" placeholder="Direccion" id="ID_COMM" required ></input>
+                <p>Configuracion de Comunicacion Serial (RS232/RS485):</p>
+                <input type="text" class="form-control mb-2" placeholder="Configuracion Serial" id="SERIAL" required ></input>
+                <p>Tabla de Linealizacion:</p>
+                <input type="text" class="form-control mb-2" placeholder="Tabla de linealizacion" id="LINEAR" required ></input>
+                <p>Habilitacion:</p>
+                <select class="custom-select mb-2" name="ENABLE" id="ENABLE"  >
+                    <option selected>Choose...</option>
+                    <option value="Habilitado">Habilitado</option>
+                    <option value="Deshabilitado">Deshabilitado</option>          
+           </div>
+            <div class= "col-8 center">
+            <button type="button" class="btn btn-primary" onclick="search_conf()" >Search by TAG</button>
+            <button type="button" class="btn btn-primary" onclick="save_conf()" >Save TAG</button>
+            </div>
+            </div>
+        </div>
+        
+
+    <!-- jQuery CDN - Slim version (=without AJAX) -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <!-- Popper.JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js" integrity="sha256-JG6hsuMjFnQ2spWq0UiaDRJBaarzhFbUxiUTxQDA9Lk=" crossorigin="anonymous"></script>
+    <script crossorigin="anonymous" integrity="sha384-xBuQ/xzmlsLoJpyjoggmTEz8OWUFM0/RC5BsqQBDX2v5cMvDHcMakNTNrHIW2I5f" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+ 
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+        });
+    </script>
+    <script>
+CONF = {'ID':'', 'ID_ESTACION': '','ESTACION': '', 'ID_TANQUE':'','TANQUE':'', 'PRODUCTO':'', 'DENSIDAD':'', 'TAG_SENSOR':'','DESCRIPCION':'','UM':'', 'RANGO_MIN':'', 'RANGO_MAX':'','TIPO':'','DIRECCION':'','MASCARA':'','PUERTO':'','ID_COMM':'','SERIAL':'','LINEAR':'','ENABLE':'' }
+
+        function save_conf(){
+            var fd = new FormData();
+            fd.append( 'ID_ESTACION', document.getElementById("ID_ESTACION").value);
+            fd.append( 'ESTACION', document.getElementById("ESTACION").value);
+            fd.append( 'ID_TANQUE', document.getElementById("ID_TANQUE").value);
+            fd.append( 'TANQUE', document.getElementById("TANQUE").value);
+            fd.append( 'PRODUCTO', document.getElementById("PRODUCTO").value);
+            fd.append( 'DENSIDAD', document.getElementById("DENSIDAD").value);
+            fd.append( 'TAG_SENSOR', document.getElementById("TAG_SENSOR").value);
+            fd.append( 'DESCRIPCION', document.getElementById("DESCRIPCION").value);
+            fd.append( 'UM', document.getElementById("UM").value);
+            fd.append( 'RANGO_MIN', document.getElementById("RANGO_MIN").value);
+            fd.append( 'RANGO_MAX', document.getElementById("RANGO_MAX").value);
+            fd.append( 'TIPO', document.getElementById("TIPO").value);
+            fd.append( 'DIRECCION', document.getElementById("DIRECCION").value);
+            fd.append( 'MASCARA', document.getElementById("MASCARA").value);
+            fd.append( 'PUERTO', document.getElementById("PUERTO").value);
+            fd.append( 'ID_COMM', document.getElementById("ID_COMM").value);
+            fd.append( 'SERIAL', document.getElementById("SERIAL").value);
+            fd.append( 'LINEAR', document.getElementById("LINEAR").value);
+            fd.append( 'ENABLE', document.getElementById("ENABLE").value);
+            $.ajax({
+        url: "{{ url_for('saveconf') }}",
+        data:fd,
+        processData: false,
+        contentType: false,
+        type:"POST",
+        dataType: 'json',
+        success: function(data) {
+            console.log(data);
+        }})};
+        
+        function search_conf(){
+            var fd = new FormData();
+            fd.append( 'TAG_SENSOR', document.getElementById("TAG_SENSOR").value);
+            $.ajax({
+        url: "{{ url_for('getconf') }}",
+        data:fd,
+        processData: false,
+        contentType: false,
+        type:"POST",
+        dataType: 'json',
+        success: function(data) {
+            document.getElementById("ID_ESTACION").value=data.data["ID_ESTACION"];
+            document.getElementById("ESTACION").value=data.data["ESTACION"];
+            document.getElementById("ID_TANQUE").value=data.data["ID_TANQUE"];
+            document.getElementById("TANQUE").value=data.data["TANQUE"];
+            document.getElementById("PRODUCTO").value=data.data["PRODUCTO"];
+            document.getElementById("DENSIDAD").value=data.data["DENSIDAD"];
+            document.getElementById("TAG_SENSOR").value=data.data["TAG_SENSOR"];
+            document.getElementById("DESCRIPCION").value=data.data["DESCRIPCION"];
+            document.getElementById("UM").value=data.data["UM"];
+            document.getElementById("RANGO_MIN").value=data.data["RANGO_MIN"];
+            document.getElementById("RANGO_MAX").value=data.data["RANGO_MAX"];
+            document.getElementById("TIPO").value=data.data["TIPO"];
+            document.getElementById("DIRECCION").value=data.data["DIRECCION"];
+            document.getElementById("MASCARA").value=data.data["MASCARA"];
+            document.getElementById("PUERTO").value=data.data["PUERTO"];
+            document.getElementById("ID_COMM").value=data.data["ID_COMM"];
+            document.getElementById("SERIAL").value=data.data["SERIAL"];
+            document.getElementById("LINEAR").value=data.data["LINEAR"];
+            document.getElementById("ENABLE").value=data.data["ENABLE"];
+            console.log(data);
+
+        }})};
+        
+    </script>
+</body>
+
+</html>
