@@ -14,7 +14,7 @@ app.secret_key = secrets.token_urlsafe(20)
 #Funciones Basicas de configuracion
 user = { 'email':'','password':'','nombre':'','apellido':'','cargo':'','area':'','empresa':'','rol':''}
 CONF = {'ID':'', 'ID_ESTACION': '','ESTACION': '', 'ID_TANQUE':'','TANQUE':'', 'PRODUCTO':'', 'DENSIDAD':'', 'TAG_SENSOR':'','DESCRIPCION':'','UM':'', 'RANGO_MIN':'', 'RANGO_MAX':'','TIPO':'','DIRECCION':'','MASCARA':'','PUERTO':'','ID_COMM':'','SERIAL':'','LINEAR':'','ENABLE':'' }
-DATA = {'ID':'', 'FECHA_HORA': '','TAG_SENSOR': '', 'MEDIDA':'', 'UM':'','VELOCIDAD':'','LATITUD':'', 'LONGITUD':'' }
+DATA = {'ID':'', 'FECHA_HORA': '','TAG_SENSOR': '', 'MEDIDA':'', 'UM':'','VELOCIDAD':'','LATITUD':'', 'LONGITUD':'', 'SALE':'', 'DELIVERY':'' }
 CONX = { 'NOMBRE':'','DIRECCION':'','ENABLE':''}
 
 
@@ -34,7 +34,7 @@ def init_db():
         hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         Query= "CREATE TABLE CONF ( `ID` INT PRIMARY KEY AUTO_INCREMENT, `ID_ESTACION` TEXT NOT NULL ,`ESTACION` TEXT NOT NULL,`ID_TANQUE` TEXT NOT NULL,`TANQUE` TEXT NOT NULL,`PRODUCTO` TEXT NOT NULL,`DENSIDAD` TEXT NOT NULL,`TAG_SENSOR` TEXT NOT NULL UNIQUE,`DESCRIPCION` TEXT NOT NULL,`UM` TEXT NOT NULL, `RANGO_MIN` FLOAT NOT NULL, `RANGO_MAX` FLOAT NOT NULL, `TIPO` TEXT NOT NULL,`DIRECCION` TEXT NOT NULL, `MASCARA` TEXT NOT NULL, `PUERTO` TEXT NOT NULL,`ID_COMM` TEXT NOT NULL,`SERIAL` TEXT NOT NULL,`LINEAR` TEXT NOT NULL,`ENABLE` TEXT NOT NULL)"
         cursor.execute(Query)
-        Query= "CREATE TABLE DATA ( `ID` INT PRIMARY KEY AUTO_INCREMENT , `FECHA_HORA` DATETIME NOT NULL,`TAG_SENSOR` TEXT NOT NULL,`UM` TEXT NOT NULL,`MEDIDA` FLOAT NOT NULL, `VELOCIDAD` FLOAT NOT NULL, `LATITUD` FLOAT NOT NULL,`LONGITUD` FLOAT NOT NULL)"
+        Query= "CREATE TABLE DATA ( `ID` INT PRIMARY KEY AUTO_INCREMENT , `FECHA_HORA` DATETIME NOT NULL,`TAG_SENSOR` TEXT NOT NULL,`UM` TEXT NOT NULL,`MEDIDA` FLOAT NOT NULL, `VELOCIDAD` FLOAT NOT NULL, `LATITUD` FLOAT NOT NULL,`LONGITUD` FLOAT NOT NULL,`SALE` FLOAT NOT NULL,`DELIVERY` FLOAT NOT NULL)"
         cursor.execute(Query)
         Query="CREATE TABLE USER (NOMBRE TEXT NOT NULL, APELLIDO TEXT NOT NULL,EMAIL TEXT NOT NULL UNIQUE, PASSWORD TEXT NOT NULL, CARGO TEXT, AREA TEXT, EMPRESA TEXT, ROL TEXT NOT NULL);"
         cursor.execute(Query)
@@ -46,6 +46,7 @@ def init_db():
     cursor.close()
     connection.close()  
 
+#Login de usuarios
 def val_user(user):
     f=open("database.env")
     dbc = urlparse(f.read())
@@ -62,7 +63,7 @@ def val_user(user):
         return bcrypt.checkpw(user['password'].encode('UTF-8'), hashed)
     except:
         return False
-
+#Administracion de usuarios
 def check_user(user):
     f=open("database.env")
     dbc = urlparse(f.read())
@@ -98,7 +99,6 @@ def save_user(user):
         }
     resp =  json.dumps(message, indent=4)
     return resp
-
 
 def update_user(user):
     f=open("database.env")
@@ -151,6 +151,7 @@ def get_user(user):
     resp =  json.dumps(message, indent=4)
     return resp
 
+#Administracion de Configuracion
 def check_conf(CONF):
     f=open("database.env")
     dbc = urlparse(f.read())
@@ -244,7 +245,7 @@ def get_conf(CONF):
     resp =  json.dumps(message, indent=4)
     return resp
 
-
+#Administracion de conexiones de nodos
 def check_nodo(CONX):
     f=open("database.env")
     dbc = urlparse(f.read())
@@ -323,10 +324,29 @@ def get_nodo(CONX):
     resp =  json.dumps(message, indent=4)
     return resp
 
+#Datos para graficas
+def get_chartdata(fecha_inicio,fecha_fin):
+    import random
+    print(fecha_inicio)
+    print(fecha_fin)
+    datasets=[]
+    for i in range(3):
+        datasets.append({
+            'data': [100*random.random(), 100*random.random(), 100*random.random(), 100*random.random(), 100*random.random(), 100*random.random(), 100*random.random()],
+            'lineTension': 0,
+            'backgroundColor': 'transparent',
+            'borderColor': '#007bff',
+            'borderWidth': 4,
+            'pointBackgroundColor': '#007bff'})
+    chartdata={'labels':["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], 'datasets': datasets}
+    message = {
+            'status': 200,
+            'message': 'OK',
+            'data': chartdata
+        }
+    resp =  json.dumps(message, indent=4)
 
-
-
-
+#Tablas de Rutas
 
 @app.route('/')
 @app.route('/index')
@@ -520,6 +540,31 @@ def savenodo():
             'data': 0
         }
         return json.dumps(message, indent=4)
+
+
+
+@app.route('/getchardata', methods=["GET","POST"])
+def getchardata():
+    if 'username' in session:
+        if request.method=="POST":
+            fecha_inicio=request.form.get('fecha_inicio')
+            fecha_fin=request.form.get('fecha_fin')
+            return get_chartdata(fecha_inicio,fecha_fin)
+        else:
+            message = {
+                'status': 404,
+                'message': 'FAIL',
+                'data': 0
+            }
+            return json.dumps(message, indent=4)
+    else:
+        message = {
+            'status': 404,
+            'message': 'No permitido',
+            'data': 0
+        }
+        return json.dumps(message, indent=4)
+
 
 
 @app.route('/logout')

@@ -14,6 +14,7 @@
     <!-- Font Awesome JS -->
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
     <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>
+    
 </head>
 
 <body>
@@ -43,17 +44,18 @@
                     <a href="#">About</a>
                 </li>
                 <li>
-                    <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Pages</a>
+                    <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">Administracion</a>
                     <ul class="collapse list-unstyled" id="pageSubmenu">
                         <li>
-                            <a href="#">Page 1</a>
+                            <a href="{{ url_for('usuarios') }}" >Usuarios </a>
                         </li>
                         <li>
-                            <a href="#">Page 2</a>
+                            <a href="{{ url_for('configuracion') }}">Configuracion</a>
                         </li>
                         <li>
-                            <a href="#">Page 3</a>
+                            <a href="{{ url_for('nodos') }}" >Nodos</a>
                         </li>
+
                     </ul>
                 </li>
                 <li>
@@ -66,20 +68,11 @@
 
             <ul class="list-unstyled CTAs">
                 <li>
-                    <a href="{{ url_for('usuarios') }}" class="download">Usuarios</a>
-                </li>
-                <li>
-                    <a href="{{ url_for('configuracion') }}" class="download">Configuracion</a>
-                </li>
-                <li>
-                  <a href="{{ url_for('dashboard') }}" class="download">Inicio</a>
-                </li>
-                <li>
-                    <a href="{{ url_for('nodos') }}" class="download">Nodos</a>
-                </li>
-                <li>
-                    <a href="{{ url_for('logout') }}" class="article">Logout</a>
-                </li>
+                    <a href="{{ url_for('dashboard') }}" class="download">Inicio</a>
+                  </li>
+                  <li>
+                      <a href="{{ url_for('logout') }}" class="article">Logout</a>
+                  </li>
     
             </ul>
         </nav>
@@ -101,13 +94,13 @@
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="nav navbar-nav ml-auto">
                             <li class="nav-item active">
-                              Fecha de Inicio:  <input type="datetime-local" name="Inicio">
+                              Fecha de Inicio:  <input type="datetime-local" id=fecha_inicio name="Inicio" >
                             </li>
                             <li class="nav-item active">
-                              Fecha de Fin:  <input type="datetime-local" name="Final">
+                              Fecha de Fin:  <input type="datetime-local" id=fecha_fin name="Final" >
                             </li>
                             <li class="nav-item active">
-                                <button type="button" name="Submit">Submit</button> 
+                            <button type="button" class="btn btn-primary" onclick="getdata()" >Search Nodo</button>
                             </li>
                         </ul>
                     </div>
@@ -139,40 +132,39 @@
     </script>
     
     <script>
-      //line
-      var ctxL = document.getElementById("miGrafico").getContext('2d');
-      var myLineChart = new Chart(ctxL, {
-      type: 'line',
-      data: {
-      labels: ["January", "February", "March", "April", "May", "June", "July"],
-      datasets: [{
-      label: "Stock (Gallons)",
-      data: [650, 590, 800, 810, 560, 550, 400],
-      backgroundColor: ['rgba(105, 0, 132, .2)',],
-      borderColor: ['rgba(200, 99, 132, .7)',],
-      borderWidth: 2
-      },
-      {
-      label: "Sales (Gallons)",
-      data: [28, 48, 40, 19, 86, 27, 90],
-      backgroundColor: ['rgba(0, 137, 132, .2)',],
-      borderColor: ['rgba(0, 10, 130, .7)',],
-      borderWidth: 2
-      },
-      {
-      label: "Deliveries (Gallons)",
-      data: [18, 28, 20, 29, 46, 37, 10],
-      backgroundColor: ['rgba(0, 137, 132, .2)',],
-      borderColor: ['rgba(0, 10, 130, .7)',],
-      borderWidth: 2
-      }]},
-      options: {
-      responsive: true
-      }});
+    $(document).ready(function() {
+    var dt = new Date();
+    document.getElementById("fecha_fin").value=dt;
+    dt.setMonth(dt.getMonth()-1);
+    document.getElementById("fecha_inicio").value=dt;
+    getdata();
+    });
+    function getdata() {
+        var fd = new FormData();
+        fd.append( 'fecha_inicio', document.getElementById("fecha_inicio").value);
+        fd.append( 'fecha_fin', document.getElementById("fecha_fin").value);
+        $.ajax({
+        url: "{{ url_for('getchardata') }}",
+        data:fd,
+        processData: false,
+        contentType: false,
+        type:"POST",
+        dataType: 'json',
+        success: function(data) {
+            console.log(data);
+            var ctxL = document.getElementById("miGrafico").getContext('2d');
+            var myLineChart = new Chart(ctxL, {
+            type: 'line',
+            data: data ,
+            options: {
+            responsive: true
+            }});
+        }});
+        };
+     
       </script>
 
 <script>
-
 	var mymap = L.map('mapid').setView([-12.058, -77.12], 13);
 
 	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
