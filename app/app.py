@@ -327,17 +327,14 @@ def get_nodo(CONX):
 #Datos para graficas
 def get_chartdata(fecha_inicio,fecha_fin):
     import random
-    print(fecha_inicio)
-    print(fecha_fin)
     datasets=[]
     for i in range(3):
         datasets.append({
-            'data': [100*random.random(), 100*random.random(), 100*random.random(), 100*random.random(), 100*random.random(), 100*random.random(), 100*random.random()],
-            'lineTension': 0,
+            'label':str(i),
+            'data': [100*random.random(), 100*random.random(),100*random.random(),100*random.random(),100*random.random(),100*random.random(),100*random.random()],
+            'lineTension': '0',
             'backgroundColor': 'transparent',
-            'borderColor': '#007bff',
-            'borderWidth': 4,
-            'pointBackgroundColor': '#007bff'})
+            'borderColor': 'rgba('+str(255*random.random())+','+str(255*random.random())+','+str(255*random.random())+',0.7)'})
     chartdata={'labels':["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], 'datasets': datasets}
     message = {
             'status': 200,
@@ -345,7 +342,7 @@ def get_chartdata(fecha_inicio,fecha_fin):
             'data': chartdata
         }
     resp =  json.dumps(message, indent=4)
-
+    return resp
 #Tablas de Rutas
 
 @app.route('/')

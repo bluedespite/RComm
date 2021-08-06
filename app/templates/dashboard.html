@@ -100,7 +100,7 @@
                               Fecha de Fin:  <input type="datetime-local" id=fecha_fin name="Final" >
                             </li>
                             <li class="nav-item active">
-                            <button type="button" class="btn btn-primary" onclick="getdata()" >Search Nodo</button>
+                            <button type="button" class="btn btn-primary" onclick="getdata()" >Search</button>
                             </li>
                         </ul>
                     </div>
@@ -122,7 +122,8 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js" integrity="sha256-JG6hsuMjFnQ2spWq0UiaDRJBaarzhFbUxiUTxQDA9Lk=" crossorigin="anonymous"></script>
- 
+    <script crossorigin="anonymous" integrity="sha384-xBuQ/xzmlsLoJpyjoggmTEz8OWUFM0/RC5BsqQBDX2v5cMvDHcMakNTNrHIW2I5f" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script crossorigin="anonymous" src="https://momentjs.com/downloads/moment-with-locales.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             $('#sidebarCollapse').on('click', function () {
@@ -134,9 +135,9 @@
     <script>
     $(document).ready(function() {
     var dt = new Date();
-    document.getElementById("fecha_fin").value=dt;
+    document.getElementById("fecha_fin").value=moment(dt).format("YYYY-MM-DDTkk:mm");
     dt.setMonth(dt.getMonth()-1);
-    document.getElementById("fecha_inicio").value=dt;
+    document.getElementById("fecha_inicio").value=moment(dt).format("YYYY-MM-DDTkk:mm");
     getdata();
     });
     function getdata() {
@@ -155,7 +156,7 @@
             var ctxL = document.getElementById("miGrafico").getContext('2d');
             var myLineChart = new Chart(ctxL, {
             type: 'line',
-            data: data ,
+            data: data.data ,
             options: {
             responsive: true
             }});
