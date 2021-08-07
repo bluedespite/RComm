@@ -8,23 +8,22 @@ services:
           MARIADB_USER: admin
           MARIADB_PASSWORD: 12345
           MARIADB_DATABASE: MAIN_SENSOR
+        networks: 
+          - mynet
         volumes:
           - db-data:/var/lib/mysql
         ports:
           - "3306:3306"
-      adminer:
-        image: phpmyadmin/phpmyadmin:5.1.1-fpm-alpine
-        restart: always
-        environment:
-          PMA_HOST: mydb
-          MYSQL_ROOT_PASSWORD: 12345
-        ports: 
-         - "8080:80"
       appi:
-        links:
-          - "mydb"
         build: .
         ports: 
           - "80:80"
+        depends_on: 
+          - mydb
+        networks: 
+          - mynet
 volumes:
   db-data:
+networks: 
+  mynet:
+    driver: bridge
