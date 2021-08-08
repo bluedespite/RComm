@@ -6,9 +6,10 @@ from urllib.parse import urlparse
 import secrets
 import json
 import bcrypt
-
 app = Flask(__name__)
 app.secret_key = secrets.token_urlsafe(20)
+from datetime import datetime
+
 
 
 #Funciones Basicas de configuracion
@@ -17,7 +18,12 @@ CONF = {'ID':'', 'ID_ESTACION': '','ESTACION': '', 'ID_TANQUE':'','TANQUE':'', '
 DATA = {'ID':'', 'FECHA_HORA': '','TAG_SENSOR': '', 'MEDIDA':'', 'UM':'','VELOCIDAD':'','LATITUD':'', 'LONGITUD':'', 'SALE':'', 'DELIVERY':'' }
 CONX = { 'NOMBRE':'','DIRECCION':'','ENABLE':''}
 
-
+def dateconvert(date):
+    datos=[]
+    for i in range(len(date)):
+        datos.append(date[i][0].strftime('%Y-%m-%d %H:%M:%S'))
+    return datos
+     
 #Inicializa las tablas necesarias dentro del dispositivo
 
 def init_db():    
@@ -43,6 +49,7 @@ def init_db():
         Query="INSERT INTO USER (NOMBRE,APELLIDO,EMAIL,PASSWORD,ROL) VALUES ('MIGUEL','AGUIRRE','miguelaguirreleon@gmail.com','%s','Administrador');" % hashed.decode('UTF-8')
         cursor.execute(Query)
         connection.commit()
+        import test
     cursor.close()
     connection.close()  
 
@@ -325,17 +332,65 @@ def get_nodo(CONX):
     return resp
 
 #Datos para graficas
+def Queryalldatos():
+    f=open("database.env")
+    dbc = urlparse(f.read())
+    f.close()
+    connection=pymysql.connect (host=dbc.hostname,database=dbc.path.lstrip('/'),user=dbc.username,password=dbc.password)
+    cursor=connection.cursor()
+    Query="SELECT TAG_SENSOR FROM `DATA` GROUP BY TAG_SENSOR"
+    cursor.execute(Query)
+    tags=cursor.fetchall()
+    Query="SELECT FECHA_HORA FROM `DATA` WHERE 1"
+    cursor.execute(Query)
+    labels=dateconvert(cursor.fetchall())
+    data=[]
+    for tag in tags:
+        Query="SELECT FECHA_HORA FROM `DATA` WHERE TAG_SENSOR = %s "
+        cursor.execute(Query, tag)
+        x=dateconvert(cursor.fetchall())
+        Query="SELECT MEDIDA FROM `DATA` WHERE TAG_SENSOR = %s "
+        cursor.execute(Query, tag)
+        y=[T[0] for T in cursor.fetchall()]
+        Query="SELECT SUM(SALE) FROM `DATA` WHERE TAG_SENSOR = %s "
+        cursor.execute(Query, tag)
+        q1=cursor.fetchone()
+        Query="SELECT SUM(DELIVERY) FROM `DATA` WHERE TAG_SENSOR = %s "
+        cursor.execute(Query, tag)
+        q2=cursor.fetchone()
+        Query="SELECT UM FROM `DATA` WHERE TAG_SENSOR = %s ORDER BY ID DESC LIMIT 1"
+        cursor.execute(Query, tag)
+        q3=cursor.fetchone()
+        q00=[]
+        for i in range(len(x)):
+            q00.append({
+                'x':x[i],
+                'y':y[i],
+           })
+        data.append({
+            'DATA':q00,
+            'TAG_SENSOR': tag,
+            'SALE':q1,
+            'DELIVERY':q2,
+            'UM': q3
+        })
+    cursor.close
+    connection.close
+    return labels,data
+
+
 def get_chartdata(fecha_inicio,fecha_fin):
     import random
+    labels,datos=Queryalldatos()
     datasets=[]
-    for i in range(3):
+    for i in range(len(datos)):
         datasets.append({
-            'label':str(i),
-            'data': [100*random.random(), 100*random.random(),100*random.random(),100*random.random(),100*random.random(),100*random.random(),100*random.random()],
+            'label':datos[i]['TAG_SENSOR'],
+            'data': datos[i]['DATA'],
             'lineTension': '0',
             'backgroundColor': 'transparent',
             'borderColor': 'rgba('+str(255*random.random())+','+str(255*random.random())+','+str(255*random.random())+',0.7)'})
-    chartdata={'labels':["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], 'datasets': datasets}
+    chartdata={'labels':labels, 'datasets': datasets}
     message = {
             'status': 200,
             'message': 'OK',
@@ -343,8 +398,8 @@ def get_chartdata(fecha_inicio,fecha_fin):
         }
     resp =  json.dumps(message, indent=4)
     return resp
-#Tablas de Rutas
 
+#Tablas de Rutas
 @app.route('/')
 @app.route('/index')
 def index():
