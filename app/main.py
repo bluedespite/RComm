@@ -363,6 +363,9 @@ def Queryalldatos(fecha_inicio,fecha_fin):
         Query="SELECT UM FROM `DATA` WHERE TAG_SENSOR = %s AND FECHA_HORA>%s AND FECHA_HORA<%s ORDER BY ID DESC LIMIT 1"
         cursor.execute(Query, (tag,fecha_inicio,fecha_fin))
         q3=cursor.fetchone()
+        Query="SELECT LATITUD,LONGITUD FROM `DATA` WHERE TAG_SENSOR = %s AND FECHA_HORA>%s AND FECHA_HORA<%s ORDER BY ID DESC LIMIT 1"
+        cursor.execute(Query, (tag,fecha_inicio,fecha_fin))
+        geo=cursor.fetchall()
         q00=[]
         for i in range(len(x)):
             q00.append({
@@ -374,7 +377,8 @@ def Queryalldatos(fecha_inicio,fecha_fin):
             'TAG_SENSOR': tag,
             'SALE':q1,
             'DELIVERY':q2,
-            'UM': q3
+            'UM': q3,
+            'GEO':geo
         })
     cursor.close
     connection.close
