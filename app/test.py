@@ -20,7 +20,7 @@ def sin_wave():
         VANT=0
         DATA = {'ID':'', 'FECHA_HORA': '','TAG_SENSOR': 'TEST0'+str(i), 'MEDIDA':'', 'UM':'GAL','VELOCIDAD':'','LATITUD':'', 'LONGITUD':'', 'SALE':'', 'DELIVERY':'' }
         for x1 in range(0,1000):
-            DATA['MEDIDA'] = 1200*np.sin(x1*f)+random.random()/1000
+            DATA['MEDIDA'] = 1200*np.sin(x1*f+i*30)+random.random()/1000
             if DATA['MEDIDA']<0:
                 DATA['MEDIDA']=0
             if DATA['MEDIDA']>1000:

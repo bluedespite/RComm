@@ -331,35 +331,37 @@ def get_nodo(CONX):
     resp =  json.dumps(message, indent=4)
     return resp
 
-#Datos para graficas
-def Queryalldatos():
+#Datos para graficas entre fecha_inicio y fecha_fin
+def Queryalldatos(fecha_inicio,fecha_fin):
+    print(fecha_inicio)
+    print(fecha_fin)
     f=open("database.env")
     dbc = urlparse(f.read())
     f.close()
     connection=pymysql.connect (host=dbc.hostname,database=dbc.path.lstrip('/'),user=dbc.username,password=dbc.password)
     cursor=connection.cursor()
-    Query="SELECT TAG_SENSOR FROM `DATA` GROUP BY TAG_SENSOR"
-    cursor.execute(Query)
+    Query="SELECT TAG_SENSOR FROM `DATA` WHERE FECHA_HORA>%s AND FECHA_HORA<%s GROUP BY TAG_SENSOR"
+    cursor.execute(Query,(fecha_inicio,fecha_fin))
     tags=cursor.fetchall()
-    Query="SELECT FECHA_HORA FROM `DATA` WHERE 1"
-    cursor.execute(Query)
+    Query="SELECT FECHA_HORA FROM `DATA` WHERE FECHA_HORA>%s AND FECHA_HORA<%s "
+    cursor.execute(Query,(fecha_inicio,fecha_fin))
     labels=dateconvert(cursor.fetchall())
     data=[]
     for tag in tags:
-        Query="SELECT FECHA_HORA FROM `DATA` WHERE TAG_SENSOR = %s "
-        cursor.execute(Query, tag)
+        Query="SELECT FECHA_HORA FROM `DATA` WHERE TAG_SENSOR = %s AND FECHA_HORA>%s AND FECHA_HORA<%s  "
+        cursor.execute(Query, (tag,fecha_inicio,fecha_fin))
         x=dateconvert(cursor.fetchall())
-        Query="SELECT MEDIDA FROM `DATA` WHERE TAG_SENSOR = %s "
-        cursor.execute(Query, tag)
+        Query="SELECT MEDIDA FROM `DATA` WHERE TAG_SENSOR = %s AND FECHA_HORA>%s AND FECHA_HORA<%s"
+        cursor.execute(Query, (tag,fecha_inicio,fecha_fin))
         y=[T[0] for T in cursor.fetchall()]
-        Query="SELECT SUM(SALE) FROM `DATA` WHERE TAG_SENSOR = %s "
-        cursor.execute(Query, tag)
+        Query="SELECT SUM(SALE) FROM `DATA` WHERE TAG_SENSOR = %s AND FECHA_HORA>%s AND FECHA_HORA<%s"
+        cursor.execute(Query, (tag,fecha_inicio,fecha_fin))
         q1=cursor.fetchone()
-        Query="SELECT SUM(DELIVERY) FROM `DATA` WHERE TAG_SENSOR = %s "
-        cursor.execute(Query, tag)
+        Query="SELECT SUM(DELIVERY) FROM `DATA` WHERE TAG_SENSOR = %s AND FECHA_HORA>%s AND FECHA_HORA<%s"
+        cursor.execute(Query, (tag,fecha_inicio,fecha_fin))
         q2=cursor.fetchone()
-        Query="SELECT UM FROM `DATA` WHERE TAG_SENSOR = %s ORDER BY ID DESC LIMIT 1"
-        cursor.execute(Query, tag)
+        Query="SELECT UM FROM `DATA` WHERE TAG_SENSOR = %s AND FECHA_HORA>%s AND FECHA_HORA<%s ORDER BY ID DESC LIMIT 1"
+        cursor.execute(Query, (tag,fecha_inicio,fecha_fin))
         q3=cursor.fetchone()
         q00=[]
         for i in range(len(x)):
@@ -381,7 +383,7 @@ def Queryalldatos():
 
 def get_chartdata(fecha_inicio,fecha_fin):
     import random
-    labels,datos=Queryalldatos()
+    labels,datos=Queryalldatos(fecha_inicio.replace('T',' '),fecha_fin.replace('T',' '))
     datasets=[]
     for i in range(len(datos)):
         datasets.append({
