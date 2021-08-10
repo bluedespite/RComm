@@ -375,10 +375,7 @@ def Queryalldatos(fecha_inicio,fecha_fin):
         data.append({
             'DATA':q00,
             'TAG_SENSOR': tag,
-            'SALE':q1,
-            'DELIVERY':q2,
-            'UM': q3,
-            'GEO':geo
+            'UM': q3
         })
     cursor.close
     connection.close
@@ -401,6 +398,42 @@ def get_chartdata(fecha_inicio,fecha_fin):
             'status': 200,
             'message': 'OK',
             'data': chartdata
+        }
+    resp =  json.dumps(message, indent=4)
+    return resp
+
+#Datos para graficas entre fecha_inicio y fecha_fin
+def Querygeodatos(fecha_inicio,fecha_fin):
+    f=open("database.env")
+    dbc = urlparse(f.read())
+    f.close()
+    size=0
+    connection=pymysql.connect (host=dbc.hostname,database=dbc.path.lstrip('/'),user=dbc.username,password=dbc.password)
+    cursor=connection.cursor()
+    Query="SELECT TAG_SENSOR FROM `DATA` WHERE FECHA_HORA>%s AND FECHA_HORA<%s GROUP BY TAG_SENSOR"
+    cursor.execute(Query,(fecha_inicio,fecha_fin))
+    tags=cursor.fetchall()
+    data=[]
+    for tag in tags:
+        Query="SELECT LATITUD,LONGITUD FROM `DATA` WHERE TAG_SENSOR = %s AND FECHA_HORA>%s AND FECHA_HORA<%s "
+        cursor.execute(Query, (tag,fecha_inicio,fecha_fin))
+        geo=cursor.fetchall()
+        data.append({
+            'TAG_SENSOR': tag,
+            'GEO':geo
+        })
+        size+=1
+    cursor.close
+    connection.close
+    return size,data
+
+
+def get_geomap(fecha_inicio,fecha_fin):
+    size,data=Querygeodatos(fecha_inicio,fecha_fin)    
+    message = {
+            'status': 200,
+            'message': 'OK',
+            'data':data
         }
     resp =  json.dumps(message, indent=4)
     return resp
@@ -623,6 +656,27 @@ def getchardata():
         }
         return json.dumps(message, indent=4)
 
+@app.route('/getgeomapdata', methods=["GET","POST"])
+def getgeomapdata():
+    if 'username' in session:
+        if request.method=="POST":
+            fecha_inicio=request.form.get('fecha_inicio')
+            fecha_fin=request.form.get('fecha_fin')
+            return get_geomap(fecha_inicio,fecha_fin)
+        else:
+            message = {
+                'status': 404,
+                'message': 'FAIL',
+                'data': 0
+            }
+            return json.dumps(message, indent=4)
+    else:
+        message = {
+            'status': 404,
+            'message': 'No permitido',
+            'data': 0
+        }
+        return json.dumps(message, indent=4)
 
 
 @app.route('/logout')
