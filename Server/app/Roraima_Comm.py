@@ -1,4 +1,3 @@
-import mysql.connector
 import logging
 from datetime import datetime
 from pymodbus.client.sync import ModbusTcpClient
@@ -8,12 +7,11 @@ import serial.tools.list_ports
 import threading
 import pandas as pd
 import numpy as np
-
+import init
 
 arduinos={'Latitude': '-12.063190', 'Longitude': '-77.112600', 'Velocity': '0', 'DateTime': '2000-01-01 12:00:00', 'Analog0': '0', 'Analog1': '0', 'Analog2': '0', 'Analog3': '0', 'Analog4': '0', 'Analog5': '0'}
 df = pd.DataFrame({'ID':[], 'FECHA_HORA': [], 'ID_ESTACION': [],'ESTACION': [], 'ID_TANQUE':[],'TANQUE':[], 'PRODUCTO':[], 'DENSIDAD':[], 'TAG_SENSOR':[],'DESCRIPCION':[],'UM':[], 'RANGO_MIN':[], 'RANGO_MAX':[],'TIPO':[],'DIRECCION':[],'MASCARA':[],'PUERTO':[],'ID_COMM':[],'SERIAL':[],'LINEAR':[], 'LATITUD':[], 'LONGITUD':[],'VELOCIDAD':[],'MEASURE':[]})
 analogico=[0,0,0,0,0,0]
-
 
 def init_logger():
     FORMAT = ('%(asctime)s - %(threadName)s %(levelname)s %(module)s %(lineno)s %(message)s')

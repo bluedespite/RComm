@@ -109,6 +109,8 @@
 
             <h2>Resumen de Stocks</h2>
             <canvas id="miGrafico"></canvas>  
+            <h2>Resumen de consumos</h2>
+            <canvas id="mibar"></canvas>  
             <h2>Ruta Recorrida</h2>
             <div id="mapid" style="width: 600px; height: 400px;"></div>
           </div>
@@ -140,6 +142,7 @@
     document.getElementById("fecha_inicio").value=moment(dt).format("YYYY-MM-DDTkk:mm");
     getlchartdata();
     getgeomapdata();
+    getbchartdata();
     });
     function getlchartdata() {
         var fd = new FormData();
@@ -171,7 +174,7 @@
         }});
         };
      
-      </script>
+</script>
 <script>
 
     function getgeomapdata() {
@@ -208,13 +211,37 @@
             }
             mymap.on('click', onMapClick);
             }});}
+</script>
+<script>
 
-
-
-
-
-
+function getbchartdata() {
+    var fd = new FormData();
+    fd.append( 'fecha_inicio', document.getElementById("fecha_inicio").value);
+    fd.append( 'fecha_fin', document.getElementById("fecha_fin").value);
+    $.ajax({
+    url: "{{ url_for('getbardata') }}",
+    data:fd,
+    processData: false,
+    contentType: false,
+    type:"POST",
+    dataType: 'json',
+    success: function(data) {
+        console.log(data.data);
+    new Chart(document.getElementById("mibar"), {
+    type: 'bar',
+    data:data.data,
+    options: {
+      title: {
+        display: true,
+        text: 'Ventas y Deliveries'
+    },
+    scales:{
+        yAxes:[{
+            ticks:{beginAtZero: true} 
+        }]
+    }}
+    })}
+        });};
 </script>
 </body>
-
 </html>

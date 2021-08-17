@@ -1,4 +1,4 @@
-import mysql.connector
+import pymysql
 import logging
 from datetime import datetime
 from pymodbus.client.sync import ModbusTcpClient
@@ -6,13 +6,11 @@ import time
 import serial
 import serial.tools.list_ports
 import threading
-import pandas as pd
-import numpy as np
-import init
 
-arduinos={'Latitude': '-12.063190', 'Longitude': '-77.112600', 'Velocity': '0', 'DateTime': '2000-01-01 12:00:00', 'Analog0': '0', 'Analog1': '0', 'Analog2': '0', 'Analog3': '0', 'Analog4': '0', 'Analog5': '0'}
-df = pd.DataFrame({'ID':[], 'FECHA_HORA': [], 'ID_ESTACION': [],'ESTACION': [], 'ID_TANQUE':[],'TANQUE':[], 'PRODUCTO':[], 'DENSIDAD':[], 'TAG_SENSOR':[],'DESCRIPCION':[],'UM':[], 'RANGO_MIN':[], 'RANGO_MAX':[],'TIPO':[],'DIRECCION':[],'MASCARA':[],'PUERTO':[],'ID_COMM':[],'SERIAL':[],'LINEAR':[], 'LATITUD':[], 'LONGITUD':[],'VELOCIDAD':[],'MEASURE':[]})
-analogico=[0,0,0,0,0,0]
+
+CONF = {'ID':'', 'ID_ESTACION': '','ESTACION': '', 'ID_TANQUE':'','TANQUE':'', 'PRODUCTO':'', 'DENSIDAD':'', 'TAG_SENSOR':'','DESCRIPCION':'','UM':'', 'RANGO_MIN':'', 'RANGO_MAX':'','TIPO':'','DIRECCION':'','MASCARA':'','PUERTO':'','ID_COMM':'','SERIAL':'','LINEAR':'','ENABLE':'' }
+DATA = {'ID':'', 'FECHA_HORA': '','TAG_SENSOR': '', 'MEDIDA':'', 'UM':'','VELOCIDAD':'','LATITUD':'', 'LONGITUD':'', 'SALE':'', 'DELIVERY':'' }
+ARDUINO={'Latitude': 0, 'Longitude': 0, 'Velocity': 0, '0': 0, '1':0, '2':0,'3':0, '4':0}
 
 
 def init_logger():
@@ -31,51 +29,49 @@ def init_arduino():
     return arduino_ports,False
 
 def Arduino_Comm():
-    global arduinos
-    global analogico
-    while(True):
-        arduino_port,F_OK = init_arduino()
-        arduino = serial.Serial(arduino_port,9600, timeout=50)
-        time.sleep(10)
-        if F_OK:
-            comando = 'ready'+'\n'
-            try:
-                a=arduino.write(comando.encode())
-                lectura = arduino.readline()
-            except:
-                logging.error("No se puede contectar a Tarjeta ARDUINO")    
-            txt=str(lectura)
-            txt=txt[2:-5]
-            if txt.find('Latitude')<0  or txt.find('Longitude')<0:
-                logging.info("Error de lectura en cadena Serial")
-            else:
-                SerialA=txt.split("|")
-                for S in SerialA:
-                    CLAVE=S.split("=")[0]
-                    VALOR=S.split("=")[1]
-                    if VALOR=="INVALID DATETIME":
-                        VALOR=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                    if VALOR=="INVALID SPEED":
-                        VALOR="0"
-                    if VALOR=="INVALID LATITUDE":
-                        VALOR=LAST_VALID_LAT
-                    if VALOR=="INVALID LONGITUDE":
-                        VALOR=LAST_VALID_LON
-                    if CLAVE=="Latitude":
-                        LAST_VALID_LAT=VALOR
-                    if CLAVE=="Longitude":
-                        LAST_VALID_LON=VALOR
-                    arduinos[CLAVE]=VALOR
-            analogico=[0,0,0,0,0,0]
-            analogico[0]=int(arduinos["Analog0"])
-            analogico[1]=int(arduinos["Analog1"])
-            analogico[2]=int(arduinos["Analog2"])
-            analogico[3]=int(arduinos["Analog3"])
-            analogico[4]=int(arduinos["Analog4"])
-            analogico[5]=int(arduinos["Analog5"])
-        else:
+    arduino_port,OK = init_arduino()
+    arduino = serial.Serial(arduino_port,9600, timeout=50)
+    time.sleep(10)
+    if OK:
+        comando = 'GO!'+'\n'
+        try:
+            a=arduino.write(comando.encode())
+            lectura = arduino.readline()
+        except:
             logging.error("No se puede contectar a Tarjeta ARDUINO")    
-
+        txt=str(lectura)
+        txt=txt[2:-5]
+        if txt.find('Latitude')<0  or txt.find('Longitude')<0:
+            logging.info("Error de lectura en cadena Serial")
+        else:
+            SerialA=txt.split("|")
+            for S in SerialA:
+                CLAVE=S.split("=")[0]
+                VALOR=S.split("=")[1]
+                if VALOR=="INVALID DATETIME":
+                    VALOR=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                if VALOR=="INVALID SPEED":
+                    VALOR="0"
+                if VALOR=="INVALID LATITUDE":
+                    VALOR=LAST_VALID_LAT
+                if VALOR=="INVALID LONGITUDE":
+                    VALOR=LAST_VALID_LON
+                if CLAVE=="Latitude":
+                    LAST_VALID_LAT=VALOR
+                if CLAVE=="Longitude":
+                    LAST_VALID_LON=VALOR
+                ARDUINO[CLAVE]=VALOR
+        CANALES=[0,0,0,0,0,0]
+        CANALES[0]=int(arduinos["Analog0"])
+        CANALES[1]=int(arduinos["Analog1"])
+        CANALES[2]=int(arduinos["Analog2"])
+        CANALES[3]=int(arduinos["Analog3"])
+        CANALES[4]=int(arduinos["Analog4"])
+        CANALES[5]=int(arduinos["Analog5"])
+    else:
+        logging.error("No se puede contectar a Tarjeta ARDUINO")    
+    return Arduino
+    
 def Read_Conf():
     df=pd.DataFrame=[]
     try:
@@ -91,7 +87,7 @@ def Read_Conf():
         connection.close()
         return df,False
 
-def Read_Measure():
+def Read_Measure(arduinos):
     df,F_OK=Read_Conf()
     df['MEASURE']='0'
     df['ID']='0'
@@ -157,15 +153,12 @@ def database_write(df):
     except:
         logging.error("Error: Falla al Escribir DB")
 
-def Roraima_Comm():
-    while(True):
-        df=Read_Measure()
-        database_write(df)
+def Roraima_Comm(arduino):
+        datos=Read_Measure(arduino)
+        database_write(datos)
 
 if __name__ == "__main__":
-    init_logger()
-    hilo1 = threading.Thread(target=Arduino_Comm)
-    hilo2 = threading.Thread(target=Roraima_Comm)
-    hilo1.start()
-    time.sleep(10)
-    hilo2.start()
+    while True:
+        init_logger()
+        arduino=Arduino_Comm()
+        Roraima_Comm(arduino)
