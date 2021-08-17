@@ -6,6 +6,7 @@ import time
 import serial
 import serial.tools.list_ports
 import threading
+from urllib.parse import urlparse
 
 
 
@@ -61,8 +62,25 @@ def Arduino_Comm():
                 ARDUINO[CLAVE]=VALOR
     else:
         logging.error("No se puede contectar a Tarjeta ARDUINO")    
-    return Arduino
+    return ARDUINO
+
+def Read_Conf():
+    f=open("database.env")
+    dbc = urlparse(f.read())
+    f.close()
+    connection=pymysql.connect (host=dbc.hostname,database=dbc.path.lstrip('/'),user=dbc.username,password=dbc.password)
+    cursor=connection.cursor()
+    Query="SELECT * FROM MAIN_SENSOR.CONF WHERE 1"
+    cursor.execute(Query)
+    CONFIG= cursor.fetchall()
+    cursor.close()
+    connection.close()
+    return CONFIG
+
+def Roraima_Comm(data):
+    CONFIG=Read_Conf()
 
 init_logger()
 data=Arduino_Comm()
+Roraima_Comm(data)
 print(data)
