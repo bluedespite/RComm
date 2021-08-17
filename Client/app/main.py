@@ -7,13 +7,12 @@ import serial
 import serial.tools.list_ports
 import threading
 from urllib.parse import urlparse
-
+from init import *
 
 
 CONF = {'ID':'', 'ID_ESTACION': '','ESTACION': '', 'ID_TANQUE':'','TANQUE':'', 'PRODUCTO':'', 'DENSIDAD':'', 'TAG_SENSOR':'','DESCRIPCION':'','UM':'', 'RANGO_MIN':'', 'RANGO_MAX':'','TIPO':'','DIRECCION':'','MASCARA':'','PUERTO':'','ID_COMM':'','SERIAL':'','LINEAR':'','ENABLE':'' }
 DATA = {'ID':'', 'FECHA_HORA': '','TAG_SENSOR': '', 'MEDIDA':'', 'UM':'','VELOCIDAD':'','LATITUD':'', 'LONGITUD':'', 'SALE':'', 'DELIVERY':'' }
 ARDUINO={'Latitude': 0, 'Longitude': 0, 'Velocity': 0, '0': 0, '1':0, '2':0,'3':0, '4':0}
-
 
 def init_logger():
     FORMAT = ('%(asctime)s - %(threadName)s %(levelname)s %(module)s %(lineno)s %(message)s')
@@ -70,7 +69,7 @@ def Read_Conf():
     f.close()
     connection=pymysql.connect (host=dbc.hostname,database=dbc.path.lstrip('/'),user=dbc.username,password=dbc.password)
     cursor=connection.cursor()
-    Query="SELECT * FROM MAIN_SENSOR.CONF WHERE 1"
+    Query="SELECT * FROM CONF WHERE 1"
     cursor.execute(Query)
     CONFIG= cursor.fetchall()
     cursor.close()
@@ -80,6 +79,7 @@ def Read_Conf():
 def Roraima_Comm(data):
     CONFIG=Read_Conf()
 
+init_db()
 init_logger()
 data=Arduino_Comm()
 Roraima_Comm(data)
